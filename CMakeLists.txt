@@ -2,10 +2,24 @@ cmake_minimum_required(VERSION 3.0)
 
 project(CppRobotics CXX C)
 
-# Options
-option(HOGE "hoge" ON)
+# Compiler
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=gnu++14" COMPILER_SUPPORTS_CXX14)
+if(COMPILER_SUPPORTS_CXX14)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+endif()
 
-# Sources and headers
-file(GLOB_RECURSE MANIPULATION_SOURCES src/manipulation/*.cpp)
-add_library(CppRobotics ${MANIPULATION_SOURCES})
-target_include_directories(CppRobotics PUBLIC include/cpp_robotics/manipulation)
+# Eigen
+set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/Eigen)
+include_directories(SYSTEM ${EIGEN_INCLUDE_DIR})
+
+# CppRobotics
+include_directories(CPP_ROBOTICS ${CMAKE_CURRENT_LIST_DIR}/lib/include/)
+
+# main
+file(GLOB MAIN_SOURCE main.cpp) 
+add_executable(main ${MAIN_SOURCE}
+  robotics-lib/)
+target_link_libraries(main)
