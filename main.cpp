@@ -8,9 +8,9 @@ int main()
 {
   using namespace Robotics;
 
-  auto joints = std::vector<AbstJoint>{RotationalJoint(1, 1, 1, 1),
-				       RotationalJoint(1, 1, 1, 1)};
-  auto links = Links(joints);
+  auto links = Links({RotationalJoint(1, 1, 1, 0),
+	RotationalJoint(1, 1, 1, 0)});
+  
   links.calcForwardKinematics();
   
   return 0;
