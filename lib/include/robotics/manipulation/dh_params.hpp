@@ -4,9 +4,9 @@ namespace Robotics
 {
   struct DHParams
   {
-    DHParams(double a, double alpha, double d, double theta)
-      : a(a), alpha(alpha), d(d), theta(theta)
+    DHParams(double theta, double alpha, double a, double d)
+      : theta(theta), alpha(alpha), a(a), d(d)
     {}
-    double a, alpha, d, theta;
+    double theta, alpha, a, d;
   };
 } // end namespace Roboics

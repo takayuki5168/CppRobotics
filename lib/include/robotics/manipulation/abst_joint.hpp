@@ -12,8 +12,8 @@ namespace Robotics
   class AbstJoint
   {
   public:
-    AbstJoint(double dh_a, double dh_alpha, double dh_d, double dh_theta)
-      : dh_params_(DHParams(dh_a, dh_alpha, dh_d, dh_theta)) {}
+    AbstJoint(double dh_theta, double dh_alpha, double dh_a, double dh_d)
+      : dh_params_(DHParams(dh_theta, dh_alpha, dh_a, dh_d)) {}
 
     AbstJoint(DHParams dh_params)
       : dh_params_(dh_params) {}
@@ -23,10 +23,11 @@ namespace Robotics
      */
     Eigen::Matrix4d calcTransformationMatrix() const
     {
-      const double dh_a = dh_params_.a;
-      const double dh_alpha = dh_params_.alpha;
-      const double dh_d = dh_params_.d;
       const double dh_theta = dh_params_.theta;
+      const double dh_alpha = dh_params_.alpha;      
+      const double dh_a = dh_params_.a;
+      const double dh_d = dh_params_.d;
+
       
       Eigen::Matrix4d trans;
       trans << std::cos(dh_theta), -std::sin(dh_theta), 0, dh_a,
@@ -40,7 +41,7 @@ namespace Robotics
     /*
      * use designated DH parameters, not current ones
      */
-    Eigen::Matrix4d calcTransformationMatrix(double dh_a, double dh_alpha, double dh_d, double dh_theta) const
+    Eigen::Matrix4d calcTransformationMatrix(double dh_theta, double dh_alpha, double dh_a, double dh_d) const
     {
       Eigen::Matrix4d trans;
       trans << std::cos(dh_theta), -std::sin(dh_theta), 0, dh_a,

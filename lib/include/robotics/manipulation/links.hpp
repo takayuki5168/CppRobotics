@@ -23,12 +23,12 @@ namespace Robotics
     Eigen::Matrix4d calcTransformationMatrix(int link_idx, double val) const
     {
       const DHParams& dh_params = joints_.at(link_idx).getDHParams();
-      const double dh_a = dh_params.a;
-      const double dh_alpha = dh_params.alpha;
-      const double dh_d = dh_params.d;
       const double dh_theta = dh_params.theta;
-
-      return joints_.at(link_idx).calcTransformationMatrix(dh_a, dh_alpha, dh_d, dh_theta); // change val one of args
+      const double dh_alpha = dh_params.alpha;      
+      const double dh_a = dh_params.a;
+      const double dh_d = dh_params.d;
+      
+      return joints_.at(link_idx).calcTransformationMatrix(dh_theta, dh_alpha, dh_a, dh_d); // change val one of args
     }
 
     Eigen::Matrix4d calcTransformationMatrix() const
