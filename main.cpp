@@ -1,19 +1,17 @@
 #include <array>
 #include <vector>
 #include "robotics/manipulation/links.hpp"
+#include "robotics/manipulation/abst_joint.hpp"
+#include "robotics/manipulation/rotational_joint.hpp"
 
 int main()
 {
   using namespace Robotics;
 
-  Links links = Links(2,
-		      std::vector<double>{1, 1},   // dh_a
-		      std::vector<double>{1, 1},   // dh_alpha
-		      std::vector<double>{1, 1},   // dh_d
-		      std::vector<double>{1, 1},   // dh_theta
-		      std::vector<double>{1, 1},
-		      std::vector<double>{1, 1});
-  links.calcTransformationMatrix();
+  auto joints = std::vector<AbstJoint>{RotationalJoint(1, 1, 1, 1),
+				       RotationalJoint(1, 1, 1, 1)};
+  auto links = Links(joints);
+  links.calcForwardKinematics();
   
   return 0;
 }
