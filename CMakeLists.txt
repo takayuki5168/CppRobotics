@@ -15,11 +15,22 @@ endif()
 set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/Eigen)
 include_directories(SYSTEM ${EIGEN_INCLUDE_DIR})
 
+# OpenGL
+find_package(OpenGL REQUIRED)
+find_package(GLUT REQUIRED)
+include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
+
 # CppRobotics
+file(GLOB_RECURSE SUB_SOURCES ${CMAKE_CURRENT_LIST_DIR}/lib/src/core/*.cpp)
 include_directories(CPP_ROBOTICS ${CMAKE_CURRENT_LIST_DIR}/lib/include/)
 
 # main
 file(GLOB MAIN_SOURCE main.cpp) 
-add_executable(main ${MAIN_SOURCE}
-  robotics-lib/)
-target_link_libraries(main)
+add_executable(main
+  ${MAIN_SOURCE}
+  ${SUB_SOURCES}
+  lib/)
+target_link_libraries(main
+  ${OPENGL_LIBRARIES}
+  ${GLUT_LIBRARY}
+  pthread)
