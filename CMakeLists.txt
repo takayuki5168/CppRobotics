@@ -21,15 +21,14 @@ find_package(GLUT REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
 
 # CppRobotics
-file(GLOB_RECURSE SUB_SOURCES ${CMAKE_CURRENT_LIST_DIR}/lib/src/core/*.cpp)
-include_directories(CPP_ROBOTICS ${CMAKE_CURRENT_LIST_DIR}/lib/include/)
+file(GLOB_RECURSE LIB_SOURCES ${CMAKE_CURRENT_LIST_DIR}/lib/src/core/*.cpp)
+include_directories(LIB_HEADERS ${CMAKE_CURRENT_LIST_DIR}/lib/include/)
 
 # main
 file(GLOB MAIN_SOURCE main.cpp) 
 add_executable(main
   ${MAIN_SOURCE}
-  ${SUB_SOURCES}
-  lib/)
+  ${LIB_SOURCES})
 target_link_libraries(main
   ${OPENGL_LIBRARIES}
   ${GLUT_LIBRARY}
