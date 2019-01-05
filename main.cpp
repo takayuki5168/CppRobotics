@@ -3,14 +3,14 @@
 #include "robotics/manipulation/link.hpp"
 #include "robotics/manipulation/joint_type.hpp"
 #include "robotics/manipulation/links.hpp"
-//#include "robotics/core/core.hpp"
+#include "robotics/core/core.hpp"
 
-int main()
+int main(int argc, char** argv)
 {
   using namespace Robotics;
   const double PI = 3.1416;
 
-  //init();
+  init(&argc, argv);
 
   auto links = Links({Link(0, -PI/2, .1, 0, JointType::Rotational),
 	Link(PI/2,  PI/2, 0, 0, JointType::Rotational),
@@ -20,10 +20,11 @@ int main()
 	Link(0, PI/2, 0, 0, JointType::Rotational),
 	Link(0, 0, 0, 0, JointType::Rotational)});
   
-  //gl::draw(links);
+  //draw(links);
   
   auto pos = links.calcForwardKinematics();
   std::cout << pos << std::endl;
-  
+
+  while (true) {}
   return 0;
 }
