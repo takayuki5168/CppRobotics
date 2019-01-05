@@ -48,7 +48,8 @@ namespace Robotics
     Eigen::Vector3d calcForwardKinematics()
     {
       // TODO 姿勢は
-      return (calcTransformationMatrix().inverse() * Eigen::Vector4d(0, 0, 0, 1)).block(0, 0, 3, 1);
+      //return (calcTransformationMatrix().inverse() * Eigen::Vector4d(0, 0, 0, 1)).block(0, 0, 3, 1);
+      return (calcTransformationMatrix() * Eigen::Vector4d(0, 0, 0, 1)).block(0, 0, 3, 1);      
     }
   
     void calcInverseKinematics(Eigen::Vector3d ref_pos)
