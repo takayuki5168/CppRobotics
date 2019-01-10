@@ -79,7 +79,20 @@ namespace Robotics
       return trans;
     }
 
+    Eigen::VectorXd calcBasicJacobian(double joint_angle, Eigen::Vector3d end_effector_pos) const
+    {
+      Eigen::Matrix4d trans = calcTransformationMatrix();
+      Eigen::Vector3d z_axis = trans.block(0, 2, 3, 1);
+
+      Eigen::VectorXd basic_jacobian = Eigen::VectorXd::Zero(6);
+      basic_jacobian.block(0, 0, 3, 1) = z_axis.cross(end_effector_pos);
+      basic_jacobian.block(3, 0, 3, 1) = z_axis;
+      return basic_jacobian;
+    }
+
     DHParams getDHParams() const { return dh_params_; }
+    void setJointAngle(double joint_angle) { dh_params_.theta = joint_angle; }
+    
     JointType getJointType() const { return joint_type_; }
 
   protected:

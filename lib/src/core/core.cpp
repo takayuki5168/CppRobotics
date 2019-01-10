@@ -7,23 +7,25 @@ namespace Robotics
 {
   using namespace GL;
 
-  void init(int* argc, char** argv)
+  void init(int* argc, char** argv, bool with_gui)
   {
-    glutInit(argc, argv);
+    if (with_gui) {
+      glutInit(argc, argv);
 
-    glutInitWindowPosition(WINDOW_POS_X, WINDOW_POS_Y);
-    glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
-    glutCreateWindow(WINDOW_TITLE);
+      glutInitWindowPosition(WINDOW_POS_X, WINDOW_POS_Y);
+      glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+      glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
+      glutCreateWindow(WINDOW_TITLE);
 
-    glutDisplayFunc(display);
-    glutKeyboardFunc(keyboard);
-    glutKeyboardUpFunc(keyboardUp);
-    glutSpecialFunc(keyboardSpecial);
-    glutSpecialUpFunc(keyboardSpecialUp);
-    glutIdleFunc(idle);
+      glutDisplayFunc(display);
+      glutKeyboardFunc(keyboard);
+      glutKeyboardUpFunc(keyboardUp);
+      glutSpecialFunc(keyboardSpecial);
+      glutSpecialUpFunc(keyboardSpecialUp);
+      glutIdleFunc(idle);
 
-    std::thread gl_thread(glutMainLoop);
-    gl_thread.detach();
+      std::thread gl_thread(glutMainLoop);
+      gl_thread.detach();
+    }
   }
 } // end namespace Robotics
