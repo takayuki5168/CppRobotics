@@ -22,13 +22,24 @@ int main(int argc, char** argv)
 	Link(0, 0, 0, 0, JointType::Rotational)});
   
   //draw(links);
-  
-  //auto pose = links.calcForwardKinematics();
-  
-  Eigen::VectorXd ref_pose(6);
-  ref_pose << 0, 0, 0, 0, 0, 0;
-  links.calcInverseKinematics(ref_pose);
 
-  while (true) {}
+  [&](){   // Forward Kinematics
+    return;
+    
+    auto pose = links.calcForwardKinematics();
+    std::cout << pose << std::endl;
+  }();
+
+  [&](){   // Inverse Kinematics
+    //return;
+
+    Eigen::VectorXd ref_pose(6);
+    ref_pose << -0.4, 0, 0, 3.14, 0, -1.57;
+    links.calcInverseKinematics(ref_pose);
+  }();
+  
+
+  //while (true) {}
+  
   return 0;
 }
