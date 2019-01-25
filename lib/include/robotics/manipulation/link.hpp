@@ -19,17 +19,19 @@ namespace Robotics
     Link(DHParams dh_params, JointType joint_type)
       : dh_params_(dh_params), joint_type_(joint_type), dh_params_changed_(true) {}
 
-    Eigen::Matrix4d calcTransformationMatrix()
+    Eigen::Matrix4d transformationMatrix()
     {
       if (dh_params_changed_) {
-	const double dh_theta = dh_params_.theta;
-	const double dh_alpha = dh_params_.alpha;      
-	const double dh_a = dh_params_.a;
-	const double dh_d = dh_params_.d;
-      
-	trans_ << std::cos(dh_theta), -std::sin(dh_theta), 0, dh_a,
-	  std::cos(dh_alpha) * std::sin(dh_theta), std::cos(dh_alpha) * std::cos(dh_theta), -std::sin(dh_alpha), -dh_d * std::sin(dh_alpha),
-	  std::sin(dh_alpha) * std::sin(dh_theta), std::sin(dh_alpha) * std::cos(dh_theta), std::cos(dh_alpha), dh_d * std::cos(dh_alpha),      
+	const double st = std::sin(dh_params_.theta);
+	const double ct = std::cos(dh_params_.theta);
+	const double sa = std::sin(dh_params_.alpha);
+	const double ca = std::cos(dh_params_.alpha);	
+	const double a = dh_params_.a;
+	const double d = dh_params_.d;
+
+	trans_ << ct, -st * ca, st * sa, a * ct,
+	  st, ct * ca, -ct * sa, a * st,
+	  0, sa, ca, d,
 	  0, 0, 0, 1;
 
 	dh_params_changed_ = false;	
@@ -38,20 +40,24 @@ namespace Robotics
       return trans_;
     }
 
-    Eigen::VectorXd calcBasicJacobian(double joint_angle, Eigen::Matrix4d trans, Eigen::Vector3d end_effector_pos) const
+    Eigen::VectorXd basicJacobian(Eigen::Matrix4d trans_prev, Eigen::Vector3d ee_pos) const
     {
-      Eigen::Vector3d pos = trans.block(0, 3, 3, 1);
-      Eigen::Vector3d z_axis = trans.block(0, 2, 3, 1);
+      Eigen::Vector3d pos_prev = trans_prev.block(0, 3, 3, 1);
+      Eigen::Vector3d z_axis_prev = trans_prev.block(0, 2, 3, 1);
 
       Eigen::VectorXd basic_jacobian = Eigen::VectorXd::Zero(6);
-      basic_jacobian.block(0, 0, 3, 1) = z_axis.cross(end_effector_pos - pos);
-      basic_jacobian.block(3, 0, 3, 1) = z_axis;
+      basic_jacobian.block(0, 0, 3, 1) = z_axis_prev.cross(ee_pos - pos_prev);
+      basic_jacobian.block(3, 0, 3, 1) = z_axis_prev;
       return basic_jacobian;
     }
 
     DHParams getDHParams() const { return dh_params_; }
     void setJointAngle(double joint_angle) {
       dh_params_.theta = joint_angle;
+      dh_params_changed_ = true;
+    }
+    void updateJointAngle(double joint_angle) {
+      dh_params_.theta += joint_angle;
       dh_params_changed_ = true;
     }
     
