@@ -20,6 +20,7 @@ set(QP_OASES_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/qpOASES/include)
 file(GLOB QP_OASES_SOURCE ${CMAKE_CURRENT_LIST_DIR}/external/qpOASES/src/*.cpp)
 add_library(QP_OASES STATIC ${QP_OASES_SOURCE})
 include_directories(SYSTEM ${QP_OASES_INCLUDE_DIR})
+add_definitions(-D__SUPPRESSANYOUTPUT__)   # not print information about optimization in qpOASES
 
 # OpenGL
 find_package(OpenGL REQUIRED)
