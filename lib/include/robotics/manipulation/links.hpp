@@ -122,7 +122,9 @@ namespace Robotics
 	K_alpha.block(3, 3, 3, 3) = K_zyz;
 
 
-	Eigen::MatrixXd basic_jacobian_pinv = basic_jacobian.completeOrthogonalDecomposition().pseudoInverse();
+	//Eigen::MatrixXd basic_jacobian_pinv = basic_jacobian.completeOrthogonalDecomposition().pseudoInverse();
+	Eigen::MatrixXd basic_jacobian_pinv = basic_jacobian.transpose() * (basic_jacobian * basic_jacobian.transpose() + 0.01 * Eigen::MatrixXd::Identity(6, 6)).inverse();
+	
 	Eigen::VectorXd theta_dot = basic_jacobian_pinv * K_alpha * diff_pose;
 	for (int link_idx = 0; link_idx < link_num_; link_idx++) {
 	  links_.at(link_idx).updateJointAngle(theta_dot.block(link_idx, 0, 1, 1)(0, 0));
