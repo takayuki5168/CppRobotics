@@ -65,7 +65,7 @@ Eigen::VectorXd qp(Eigen::MatrixXd H_mat, Eigen::VectorXd g_mat,
     for (int i = 0; i < lbA_mat.size(); i++) { lbA[i] = lbA_mat[i]; }
     for (int i = 0; i < ubA_mat.size(); i++) { ubA[i] = ubA_mat[i]; }
 
-    QProblem example(3, 1);   // TODO
+    QProblem example(g_mat.size(), g_mat.size() + 1);   // TODO
 
     int_t nWSR = 10;
     example.init(H,g,A,lb,ub,lbA,ubA, nWSR);
