@@ -19,4 +19,13 @@ namespace Robotics
       }
     }
   }
+
+  Eigen::VectorXd vectorToEigenVector(std::vector<double> vector)
+  {
+    Eigen::VectorXd eigen_vector(vector.size());
+    for (int i = 0; i < vector.size(); i++) {
+      eigen_vector(i) = vector.at(i);
+    }
+    return eigen_vector;
+  }
 }   // end namespace Robotics
