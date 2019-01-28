@@ -6,12 +6,15 @@
 #include "robotics/manipulation/links.hpp"
 #include "robotics/core/core.hpp"
 #include "robotics/core/constant.hpp"
+#include "robotics/math/qp.hpp"
+#include <qpOASES.hpp>
+
 
 int main(int argc, char** argv)
 {
   using namespace Robotics;
 
-  //init(&argc, argv, true);   // &argc, argv, with_viewer
+  init(&argc, argv, true);   // &argc, argv, with_viewer
 
   auto links = Links({Link(0, -PI/2, .1, 0, JointType::Rotational),
 	Link(PI/2,  PI/2, 0, 0, JointType::Rotational),
@@ -24,27 +27,35 @@ int main(int argc, char** argv)
   //draw(links);
 
   [&](){   // Forward Kinematics
-    return;
+    //return;
+    std::cout << "[Forward Kinematics]" << std::endl;
+    links.initPose();
     
-    auto ee_pose = links.forwardKinematics();
-    std::cout << ee_pose << std::endl;
+    auto ee_pose = links.forwardKinematics(true);
   }();
 
   [&](){   // Inverse Kinematics
     //return;
+    std::cout << "[Inverse Kinematics]" << std::endl;
+    links.initPose();
 
     Eigen::VectorXd ref_pose(6);
     ref_pose << 0.4, 0, 0, 0, 1.57, 0;
-    std::cout << "Start IK" << std::endl;
-    std::cout << ref_pose << std::endl;
-    links.inverseKinematics(ref_pose);
 
-    std::cout << "End IK" << std::endl;
-    auto ee_pose = links.forwardKinematics();
-    std::cout << ee_pose << std::endl;
-    
+    links.inverseKinematics(ref_pose, true);
   }();
-  
+
+  [&](){   // Inverse Kinematics with SQP
+    //return;
+    std::cout << "[Inverse Kinematics with SQP]" << std::endl;
+    links.initPose();
+
+    Eigen::VectorXd ref_pose(6);
+    ref_pose << 0.4, 0, 0, 0, 1.57, 0;
+
+    links.inverseKinematicsWithSQP(ref_pose, true);
+  }();
+
 
   //while (true) {}
   

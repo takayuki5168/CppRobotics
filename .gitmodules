@@ -4,3 +4,6 @@
 [submodule "external/linenoise"]
 	path = external/linenoise
 	url = https://github.com/antirez/linenoise/
+[submodule "external/qpOASES"]
+	path = external/qpOASES
+	url = https://github.com/startcode/qp-oases
