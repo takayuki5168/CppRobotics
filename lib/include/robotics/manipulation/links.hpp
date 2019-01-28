@@ -91,7 +91,7 @@ namespace Robotics
       Eigen::Matrix4d trans = Eigen::Matrix4d::Identity();      
       for (int link_idx = 0; link_idx < link_num_; link_idx++) {
 	basic_jacobian.block(0, link_idx, 6, 1) = links_.at(link_idx).basicJacobian(trans, ee_pos);
-	trans *= links_.at(link_idx).transformationMatrix();	
+	trans *= links_.at(link_idx).transformationMatrix();
       }
 
       return basic_jacobian;
