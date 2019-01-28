@@ -4,11 +4,12 @@
 #include <vector>
 #include <Eigen/Geometry>
 #include <Eigen/Core>
-#include <Eigen/QR>
 #include "robotics/manipulation/link.hpp"
 #include "robotics/manipulation/orientation_type.hpp"
 #include "robotics/core/constant.hpp"
 #include "robotics/math/qp.hpp"
+#include "robotics/util/util.hpp"
+#include <chrono>
 
 namespace Robotics
 {
@@ -55,13 +56,28 @@ namespace Robotics
       return Eigen::Vector3d{alpha, beta, gamma};
     }
 
-    Eigen::VectorXd forwardKinematics()
+    Eigen::VectorXd forwardKinematics(bool print_info=false)
     {
+      // start measuring time
+      std::chrono::system_clock::time_point  start = std::chrono::system_clock::now();
+
       Eigen::VectorXd pose = Eigen::VectorXd::Zero(6);
       Eigen::Matrix4d trans = transformationMatrix();
 	
       pose.block(0, 0, 3, 1) = trans.block(0, 3, 3, 1);
       pose.block(3, 0, 3, 1) = eulerAngle();
+      
+      // finish measuring time
+      std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+      double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+
+      // print infomation about IK with SQP
+      if (print_info) {
+	std::cout << "[Forward Kinamatics Information]" << std::endl;
+	std::cout << "  time: " << elapsed << "[ms]" << std::endl;
+	printVector(pose, "  actual pose ");
+	
+      }
       
       return pose;
     }
@@ -81,11 +97,16 @@ namespace Robotics
       return basic_jacobian;
     }
 
-    void inverseKinematics(Eigen::VectorXd ref_ee_pose)
+    void inverseKinematics(Eigen::VectorXd ref_ee_pose, bool print_info=false, double epsilon=0.001)
     {
-      for (int cnt = 0; cnt < 100; cnt++) {
+      // start measuring time
+      std::chrono::system_clock::time_point  start = std::chrono::system_clock::now();
+
+      // starr caluclation
+      for (int cnt = 0; cnt < 100; cnt++) {  // TODO
 	Eigen::VectorXd ee_pose = forwardKinematics();
 	Eigen::VectorXd diff_pose = ref_ee_pose - ee_pose;
+	if (diff_pose.norm() < epsilon) { break; }
 
 	Eigen::MatrixXd basic_jacobian = basicJacobian();
 
@@ -104,7 +125,8 @@ namespace Robotics
 	K_alpha.block(3, 3, 3, 3) = K_zyz;
 
 
-	//Eigen::MatrixXd basic_jacobian_pinv = basic_jacobian.completeOrthogonalDecomposition().pseudoInverse();
+	// use SR inverse when calculating pseuso inverse matrix of basic_jacobian
+	//Eigen::MatrixXd basic_jacobian_pinv = basic_jacobian.completeOrthogonalDecomposition().pseudoInverse();		
 	Eigen::MatrixXd basic_jacobian_pinv = basic_jacobian.transpose() * (basic_jacobian * basic_jacobian.transpose() + 0.01 * Eigen::MatrixXd::Identity(6, 6)).inverse();
 	
 	Eigen::VectorXd diff_theta = basic_jacobian_pinv * K_alpha * diff_pose;
@@ -112,10 +134,30 @@ namespace Robotics
 	  links_.at(link_idx).updateJointAngle(diff_theta.block(link_idx, 0, 1, 1)(0, 0));
 	}
       }
+
+      // finish measuring time
+      std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+      double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+
+      // print infomation about IK with SQP
+      if (print_info) {
+	Eigen::VectorXd ee_pose = forwardKinematics();
+	Eigen::VectorXd diff_pose = ref_ee_pose - ee_pose;
+
+	std::cout << "[Inverse Kinamatics Information]" << std::endl;
+	std::cout << "  time: " << elapsed << "[ms]" << std::endl;
+	printVector(ref_ee_pose, "  reference pose ");
+	printVector(ee_pose, "  actual pose ");		
+	printVector(diff_pose, "  diff pose ");
+	
+      }
     }
 
-    void inverseKinematicsWithQP(Eigen::VectorXd ref_ee_pose)
+    void inverseKinematicsWithSQP(Eigen::VectorXd ref_ee_pose, bool print_info=false, double epsilon=0.001)
     {
+      // start measuring time
+      std::chrono::system_clock::time_point  start = std::chrono::system_clock::now();
+      
       for (int cnt = 0; cnt < 100; cnt++) {
 	Eigen::VectorXd ee_pose = forwardKinematics();
 	Eigen::VectorXd diff_pose = ref_ee_pose - ee_pose;
@@ -137,19 +179,10 @@ namespace Robotics
 	K_alpha.block(3, 3, 3, 3) = K_zyz;
 
 	// calculate jacobian
-	Eigen::MatrixXd jacobian = K_alpha.inverse() * basic_jacobian;
-	//std::cout << basic_jacobian << std::endl;
-	//std::cout << K_alpha.inverse() << std::endl;
+	Eigen::MatrixXd jacobian = K_alpha.completeOrthogonalDecomposition().pseudoInverse() * basic_jacobian;
 
-	//std::cout << K_alpha.inverse() * basic_jacobian << std::endl;
-	Eigen::MatrixXd H = basic_jacobian.transpose() * basic_jacobian * 2;//jacobian.transpose() * jacobian * 2; // TODO is it right?
-	std::cout << "PO" << std::endl;
-	//std::cout << H << std::endl;
-	std::cout << K_alpha * basic_jacobian << std::endl;
-	std::cout << "PO" << std::endl;
-	Eigen::VectorXd g = -2 * (diff_pose.transpose() * K_alpha * basic_jacobian).transpose();//-2 * (jacobian.transpose() * diff_pose).transpose();
-	std::cout << "PO" << std::endl;	
-	//std::cout << g << std::endl;
+	Eigen::MatrixXd H = jacobian.transpose() * jacobian * 2; // TODO is it right?
+	Eigen::VectorXd g = -2 * (jacobian.transpose() * diff_pose).transpose();
 
 	Eigen::VectorXd lb(link_num_);
 	for (int i = 0; i < lb.size(); i++) { lb[i] = -100; }
@@ -165,6 +198,22 @@ namespace Robotics
 	for (int link_idx = 0; link_idx < link_num_; link_idx++) {
 	  links_.at(link_idx).updateJointAngle(diff_theta.block(link_idx, 0, 1, 1)(0, 0));
 	}
+      }
+      
+      // finish measuring time
+      std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+      double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+
+      // print infomation about IK
+      if (print_info) {
+	Eigen::VectorXd ee_pose = forwardKinematics();
+	Eigen::VectorXd diff_pose = ref_ee_pose - ee_pose;
+	std::cout << "[Inverse Kinamatics with QP Information]" << std::endl;	
+	std::cout << "  time: " << elapsed << "[ms]" << std::endl;
+	printVector(ref_ee_pose, "  reference pose ");
+	printVector(ee_pose, "  actual pose ");		
+	printVector(diff_pose, "  diff pose ");
+	
       }
     }
 
