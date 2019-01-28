@@ -19,6 +19,13 @@ namespace Robotics
       : link_num_(links.size()), links_(links)
     {}
 
+    void initPose()
+    {
+      for (int link_idx = 0; link_idx < link_num_; link_idx++) {
+	links_.at(link_idx).setJointAngle(0);
+      }
+    }
+
     /*
      * TODO trans_vectorを保持
      *      dh_params_changedを見て計算するかいなか変える
@@ -131,9 +138,18 @@ namespace Robotics
 
 	// calculate jacobian
 	Eigen::MatrixXd jacobian = K_alpha.inverse() * basic_jacobian;
-	
-	Eigen::MatrixXd H = jacobian.transpose() * jacobian * 2; // TODO is it right?
-	Eigen::VectorXd g = -2 * (jacobian.transpose() * diff_pose).transpose();
+	//std::cout << basic_jacobian << std::endl;
+	//std::cout << K_alpha.inverse() << std::endl;
+
+	//std::cout << K_alpha.inverse() * basic_jacobian << std::endl;
+	Eigen::MatrixXd H = basic_jacobian.transpose() * basic_jacobian * 2;//jacobian.transpose() * jacobian * 2; // TODO is it right?
+	std::cout << "PO" << std::endl;
+	//std::cout << H << std::endl;
+	std::cout << K_alpha * basic_jacobian << std::endl;
+	std::cout << "PO" << std::endl;
+	Eigen::VectorXd g = -2 * (diff_pose.transpose() * K_alpha * basic_jacobian).transpose();//-2 * (jacobian.transpose() * diff_pose).transpose();
+	std::cout << "PO" << std::endl;	
+	//std::cout << g << std::endl;
 
 	Eigen::VectorXd lb(link_num_);
 	for (int i = 0; i < lb.size(); i++) { lb[i] = -100; }

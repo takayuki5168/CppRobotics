@@ -57,42 +57,51 @@ int main(int argc, char** argv)
 
   [&](){   // Forward Kinematics
     return;
-    std::cout << "[Forward Kinematics]" << std::endl;        
+    std::cout << "[Forward Kinematics]" << std::endl;
+    links.initPose();
     
     auto ee_pose = links.forwardKinematics();
-    std::cout << ee_pose << std::endl;
+    std::cout << "actual pose"
+	      << " (" << ee_pose(0) << ", " << ee_pose(1) << ", " << ee_pose(2)
+	      << ", " << ee_pose(3) << ", " << ee_pose(4) << ", " << ee_pose(5) << ")" << std::endl;
   }();
 
   [&](){   // Inverse Kinematics
     return;
     std::cout << "[Inverse Kinematics]" << std::endl;
+    links.initPose();
 
     Eigen::VectorXd ref_pose(6);
     ref_pose << 0.4, 0, 0, 0, 1.57, 0;
 
-    std::cout << "Start IK" << std::endl;
-    std::cout << ref_pose << std::endl;
+    std::cout << "reference pose"
+	      << " (" << ref_pose(0) << ", " << ref_pose(1) << ", " << ref_pose(2)
+	      << ", " << ref_pose(3) << ", " << ref_pose(4) << ", " << ref_pose(5) << ")" << std::endl;
     links.inverseKinematics(ref_pose);
 
-    std::cout << "End IK" << std::endl;
     auto ee_pose = links.forwardKinematics();
-    std::cout << ee_pose << std::endl;
+    std::cout << "actual pose"
+	      << " (" << ee_pose(0) << ", " << ee_pose(1) << ", " << ee_pose(2)
+	      << ", " << ee_pose(3) << ", " << ee_pose(4) << ", " << ee_pose(5) << ")" << std::endl;
   }();
 
   [&](){   // Inverse Kinematics with QP
     //return;
-    std::cout << "[Inverse Kinematics with QP]" << std::endl;    
+    std::cout << "[Inverse Kinematics with QP]" << std::endl;
+    links.initPose();
 
     Eigen::VectorXd ref_pose(6);
     ref_pose << 0.4, 0, 0, 0, 1.57, 0;
 
-    std::cout << "Start IK" << std::endl;
-    std::cout << ref_pose << std::endl;
+    std::cout << "reference pose"
+	      << " (" << ref_pose(0) << ", " << ref_pose(1) << ", " << ref_pose(2)
+	      << ", " << ref_pose(3) << ", " << ref_pose(4) << ", " << ref_pose(5) << ")" << std::endl;
     links.inverseKinematicsWithQP(ref_pose);
 
-    std::cout << "End IK" << std::endl;
     auto ee_pose = links.forwardKinematics();
-    std::cout << ee_pose << std::endl;
+    std::cout << "actual pose"
+	      << " (" << ee_pose(0) << ", " << ee_pose(1) << ", " << ee_pose(2)
+	      << ", " << ee_pose(3) << ", " << ee_pose(4) << ", " << ee_pose(5) << ")" << std::endl;
   }();
 
 

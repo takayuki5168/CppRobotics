@@ -45,7 +45,7 @@ std::vector<double> qp(std::vector<double> H_vec, std::vector<double> g_vec,
     return result;
   }
 
-Eigen::VectorXd qp(Eigen::MatrixXd H_mat, Eigen::VectorXd g_mat,
+  Eigen::VectorXd qp(Eigen::MatrixXd H_mat, Eigen::VectorXd g_mat,
 		   Eigen::VectorXd lb_mat, Eigen::VectorXd ub_mat,
 		   Eigen::MatrixXd A_mat, Eigen::VectorXd lbA_mat, Eigen::VectorXd ubA_mat)
   {
@@ -65,18 +65,24 @@ Eigen::VectorXd qp(Eigen::MatrixXd H_mat, Eigen::VectorXd g_mat,
     for (int i = 0; i < lbA_mat.size(); i++) { lbA[i] = lbA_mat[i]; }
     for (int i = 0; i < ubA_mat.size(); i++) { ubA[i] = ubA_mat[i]; }
 
-    QProblem example(g_mat.size(), g_mat.size() + 1);   // TODO
+    //QProblem example(g_mat.size(), lb_mat.size() + lbA_mat.size());   // TODO
+    QProblemB example(g_mat.size());
 
     int_t nWSR = 10;
-    example.init(H,g,A,lb,ub,lbA,ubA, nWSR);
+    //example.init(H, g, A, lb, ub, lbA, ubA, nWSR);
+    example.init(H, g, lb, ub, nWSR);    
 
     real_t xOpt[g_mat.size()];
     example.getPrimalSolution(xOpt);
+    //example.getDualSolution(xOpt);
+    //std::cout << sizeof(xOpt) << " " << sizeof(real_t) << std::endl;
 
-    Eigen::VectorXd result(g_mat.size());
+    Eigen::VectorXd result(g_mat.size());    
     for (int i = 0; i < g_mat.size(); i++) {
+      //std::cout << xOpt[i] << " ";
       result[i] = xOpt[i];
     }
+    //std::cout << std::endl;
     return result;
   }
 }   // namespace Robotics
