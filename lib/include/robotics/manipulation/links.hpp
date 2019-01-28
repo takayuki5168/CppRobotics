@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 #include <Eigen/Geometry>
 #include <Eigen/Core>
 #include "robotics/manipulation/link.hpp"
@@ -18,8 +19,23 @@ namespace Robotics
   public:
     Links(std::vector<Link> links)
       : link_num_(links.size()), links_(links)
-    {}
+    {
+      commands["forwardKinematics"] = [this](std::vector<double>){
+	forwardKinematics(true);
+	return "po";
+      };
+      commands["inverseKinematics"] = [this](std::vector<double> ref_pose){
+	inverseKinematics(vectorToEigenVector(ref_pose), true);
+	return "po";
+      };
+      commands["initPose"] = [this](std::vector<double>){
+	initPose();
+	return "po";
+      };
+    }
 
+    std::unordered_map<std::string, std::function<std::string(std::vector<double>)>> commands;
+    
     void initPose()
     {
       for (int link_idx = 0; link_idx < link_num_; link_idx++) {
@@ -221,4 +237,16 @@ namespace Robotics
     const int link_num_;
     std::vector<Link> links_;
   };
+
+  /*
+  std::function<std::string(void)> commands(Links* links)
+  {
+    return [links](){
+      links->forwardKinematics(true);
+      return "po";
+    };
+  }
+  */
+  //std::unordered_map<std::string, std::function<std::string(void)>> commands;
+
 } // end namespace Robotics
