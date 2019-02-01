@@ -46,8 +46,8 @@ namespace Robotics
       Eigen::Vector3d z_axis_prev = trans_prev.block(0, 2, 3, 1);
 
       Eigen::VectorXd basic_jacobian = Eigen::VectorXd::Zero(6);
-      basic_jacobian.block(0, 0, 3, 1) = z_axis_prev.cross(ee_pos - pos_prev);
-      basic_jacobian.block(3, 0, 3, 1) = z_axis_prev;
+      basic_jacobian.block(0, 0, 3, 1) = z_axis_prev.cross(ee_pos - pos_prev);   // basic_jacobian.block(0, 3) = z_axis_prev.cross(ee_pos - pos_prev);
+      basic_jacobian.block(3, 0, 3, 1) = z_axis_prev;   //       basic_jacobian.block(3, 3) = z_axis_prev;
       return basic_jacobian;
     }
 

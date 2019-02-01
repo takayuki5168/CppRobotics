@@ -22,6 +22,12 @@ add_library(QP_OASES STATIC ${QP_OASES_SOURCE})
 include_directories(SYSTEM ${QP_OASES_INCLUDE_DIR})
 add_definitions(-D__SUPPRESSANYOUTPUT__)   # not print information about optimization in qpOASES
 
+# linenoise
+set(LINENOISE_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/linenoise)
+include_directories(SYSTEM ${LINENOISE_INCLUDE_DIR})
+file(GLOB LINENOISE_SOURCE ${CMAKE_CURRENT_LIST_DIR}/external/linenoise/*.c)
+add_library(LINENOISE STATIC ${LINENOISE_SOURCE})
+
 # OpenGL
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
@@ -39,5 +45,6 @@ add_executable(main
 target_link_libraries(main
   ${OPENGL_LIBRARIES}
   QP_OASES
+  LINENOISE  
   ${GLUT_LIBRARY}
   pthread)

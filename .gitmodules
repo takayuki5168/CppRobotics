@@ -1,6 +1,9 @@
 [submodule "external/Eigen"]
 	path = external/Eigen
 	url = https://github.com/eigenteam/eigen-git-mirror
+[submodule "external/linenoise"]
+	path = external/linenoise
+	url = https://github.com/antirez/linenoise/
 [submodule "external/qpOASES"]
 	path = external/qpOASES
 	url = https://github.com/startcode/qp-oases
