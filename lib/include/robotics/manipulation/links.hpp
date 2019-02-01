@@ -89,6 +89,7 @@ namespace Robotics
 
 	Eigen::MatrixXd basic_jacobian = basicJacobian();
 
+	/*
 	// TODO not use eulerAngle(), but use ee_pose
 	Eigen::Vector3d euler_angle = eulerAngle();
 	double alpha = euler_angle(0, 0);
@@ -102,6 +103,7 @@ namespace Robotics
 	
 	Eigen::MatrixXd K_alpha = Eigen::MatrixXd::Identity(6, 6);
 	K_alpha.block(3, 3, 3, 3) = K_zyz;
+	*/
 
 
 	//Eigen::MatrixXd basic_jacobian_pinv = basic_jacobian.completeOrthogonalDecomposition().pseudoInverse();
@@ -122,6 +124,7 @@ namespace Robotics
 
 	Eigen::MatrixXd basic_jacobian = basicJacobian();
 
+	/*
 	// TODO not use eulerAngle(), but use ee_pose	
 	Eigen::Vector3d euler_angle = eulerAngle();
 	double alpha = euler_angle(0, 0);
@@ -135,33 +138,20 @@ namespace Robotics
 	
 	Eigen::MatrixXd K_alpha = Eigen::MatrixXd::Identity(6, 6);
 	K_alpha.block(3, 3, 3, 3) = K_zyz;
+	*/
 
 	// calculate jacobian
 	Eigen::MatrixXd jacobian = K_alpha.inverse() * basic_jacobian;
-	//std::cout << basic_jacobian << std::endl;
-	//std::cout << K_alpha.inverse() << std::endl;
-
-	//std::cout << K_alpha.inverse() * basic_jacobian << std::endl;
 	Eigen::MatrixXd H = basic_jacobian.transpose() * basic_jacobian * 2;//jacobian.transpose() * jacobian * 2; // TODO is it right?
-	std::cout << "PO" << std::endl;
-	//std::cout << H << std::endl;
 	std::cout << K_alpha * basic_jacobian << std::endl;
-	std::cout << "PO" << std::endl;
 	Eigen::VectorXd g = -2 * (diff_pose.transpose() * K_alpha * basic_jacobian).transpose();//-2 * (jacobian.transpose() * diff_pose).transpose();
-	std::cout << "PO" << std::endl;	
-	//std::cout << g << std::endl;
 
 	Eigen::VectorXd lb(link_num_);
 	for (int i = 0; i < lb.size(); i++) { lb[i] = -100; }
 	Eigen::VectorXd ub(link_num_);
 	for (int i = 0; i < ub.size(); i++) { ub[i] = 100; }
-	Eigen::MatrixXd A = Eigen::MatrixXd::Zero(1, link_num_);
-	Eigen::VectorXd lbA(1);
-	for (int i = 0; i < lbA.size(); i++) { lbA[i] = -100; }
-	Eigen::VectorXd ubA(1);
-	for (int i = 0; i < ubA.size(); i++) { ubA[i] = 100; }	
 	
-	Eigen::VectorXd diff_theta = qp(H, g, lb, ub, A, lbA, ubA);
+	Eigen::VectorXd diff_theta = qp(H, g, lb, ub);
 	for (int link_idx = 0; link_idx < link_num_; link_idx++) {
 	  links_.at(link_idx).updateJointAngle(diff_theta.block(link_idx, 0, 1, 1)(0, 0));
 	}
