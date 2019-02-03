@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+/*
 #include <qpOASES.hpp>
 
 namespace Robotics
@@ -88,3 +89,4 @@ namespace Robotics
     }
   } // namespace Util
 }   // namespace Robotics
+*/

@@ -8,7 +8,7 @@
 #include "robotics/manipulation/link.hpp"
 #include "robotics/manipulation/orientation_type.hpp"
 #include "robotics/core/constant.hpp"
-#include "robotics/util/qp.hpp"
+//#include "robotics/util/qp.hpp"
 #include "robotics/util/util.hpp"
 #include <chrono>
 
@@ -200,11 +200,13 @@ namespace Robotics
 	diff_pose = ref_ee_pose - ee_pose;
 	std::cout << diff_pose.norm() << std::endl;
 	*/
-	
+
+	/*
 	Eigen::VectorXd diff_theta = Util::qp(H, g, lb, ub);
 	for (int link_idx = 0; link_idx < link_num_; link_idx++) {
 	  links_.at(link_idx).updateJointAngle(diff_theta.block(link_idx, 0, 1, 1)(0, 0));
 	}
+	*/
 	/*
 	ee_pose = forwardKinematics();
 	diff_pose = ref_ee_pose - ee_pose;

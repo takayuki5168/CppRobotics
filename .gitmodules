@@ -4,3 +4,6 @@
 [submodule "external/linenoise"]
 	path = external/linenoise
 	url = https://github.com/antirez/linenoise/
+[submodule "external/OSQP"]
+	path = external/OSQP
+	url = https://github.com/oxfordcontrol/osqp
