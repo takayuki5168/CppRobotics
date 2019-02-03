@@ -187,7 +187,7 @@ namespace Robotics
 
 	// set to QP
 	Eigen::MatrixXd H = basic_jacobian.transpose() * basic_jacobian;
-	Eigen::VectorXd g = (-diff_twist.transpose() / 100. * basic_jacobian).transpose();
+	Eigen::VectorXd g = (-diff_twist.transpose() * basic_jacobian).transpose();
 
 	Eigen::VectorXd lb(link_num_);
 	for (int i = 0; i < lb.size(); i++) { lb[i] = -1000; }
