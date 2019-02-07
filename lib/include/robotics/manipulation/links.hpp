@@ -8,7 +8,7 @@
 #include "robotics/manipulation/link.hpp"
 #include "robotics/manipulation/orientation_type.hpp"
 #include "robotics/core/constant.hpp"
-//#include "robotics/util/qp.hpp"
+#include "robotics/util/qp.hpp"
 #include "robotics/util/util.hpp"
 #include <chrono>
 
@@ -168,8 +168,7 @@ namespace Robotics
       // start measuring time
       std::chrono::system_clock::time_point  start = std::chrono::system_clock::now();
       
-      for (int cnt = 0; cnt < 100; cnt++) {
-	//for (int cnt = 0; cnt < 1; cnt++) {	
+      for (int cnt = 0; cnt < 10; cnt++) {
 	Eigen::VectorXd ee_pose = forwardKinematics();
 	Eigen::VectorXd diff_pose = ref_ee_pose - ee_pose;
 	//if (diff_pose.norm() < epsilon) { break; }
@@ -186,32 +185,28 @@ namespace Robotics
 	Eigen::MatrixXd basic_jacobian = basicJacobian();
 
 	// set to QP
-	Eigen::MatrixXd H = basic_jacobian.transpose() * basic_jacobian;
-	Eigen::VectorXd g = (-diff_twist.transpose() * basic_jacobian).transpose();
+	Eigen::MatrixXd P = basic_jacobian.transpose() * basic_jacobian;
+	Eigen::VectorXd q = (-diff_twist.transpose() * basic_jacobian).transpose();
+	Eigen::MatrixXd A(1, link_num_);
+	for (int i = 0; i < 1; i++) {
+	  for (int j = 0; j < link_num_; j++) {
+	    A(i, j) = 0;
+	  }
+	}
+	Eigen::VectorXd l(1);
+	for (int i = 0; i < l.size(); i++) { l[i] = -100.; }
+	Eigen::VectorXd u(1);
+	for (int i = 0; i < u.size(); i++) { u[i] = 100.; }
 
-	Eigen::VectorXd lb(link_num_);
-	for (int i = 0; i < lb.size(); i++) { lb[i] = -1000; }
-	Eigen::VectorXd ub(link_num_);
-	for (int i = 0; i < ub.size(); i++) { ub[i] = 1000; }
+	std::cout << "convex" << std::endl;
+	Util::printMatrix(P);
+	Util::printMatrix(q);
 
-	/*
-	std::cout << std::endl;
-	ee_pose = forwardKinematics();
-	diff_pose = ref_ee_pose - ee_pose;
-	std::cout << diff_pose.norm() << std::endl;
-	*/
-
-	/*
-	Eigen::VectorXd diff_theta = Util::qp(H, g, lb, ub);
+	Eigen::VectorXd diff_theta = Util::qp(P, q, A, l, u);
+	//std::cout << diff_theta << std::endl;
 	for (int link_idx = 0; link_idx < link_num_; link_idx++) {
 	  links_.at(link_idx).updateJointAngle(diff_theta.block(link_idx, 0, 1, 1)(0, 0));
 	}
-	*/
-	/*
-	ee_pose = forwardKinematics();
-	diff_pose = ref_ee_pose - ee_pose;
-	std::cout << diff_pose.norm() << std::endl;
-	*/
       }
       
       // finish measuring time
