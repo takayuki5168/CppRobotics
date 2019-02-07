@@ -84,9 +84,19 @@ namespace Robotics
       return trans;
     }
 
+    /*
     Eigen::Vector3d rotationMatricesToAngularVelocity(Eigen::Matrix3d rot, Eigen::Matrix3d diff_rot)
     {
       Eigen::Matrix3d mat = diff_rot * rot.transpose();
+      Eigen::Vector3d angular_velocity;
+      angular_velocity << -mat(1, 2), mat(0, 2), -mat(0, 1);
+      return angular_velocity;
+    }
+    */
+    Eigen::Vector3d rotationMatricesToAngularVelocity(Eigen::Matrix3d rot, Eigen::Matrix3d rot_ref)
+    {
+      Eigen::Matrix3d a = (rot_ref * rot.transpose());
+      Eigen::Matrix3d mat = (a - a.transpose()) * (rot_ref * rot.transpose());
       Eigen::Vector3d angular_velocity;
       angular_velocity << -mat(1, 2), mat(0, 2), -mat(0, 1);
       return angular_velocity;

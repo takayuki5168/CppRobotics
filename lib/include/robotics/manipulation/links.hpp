@@ -125,7 +125,8 @@ namespace Robotics
 	if (diff_pose.norm() < epsilon) { break; }
 
 	Eigen::Matrix3d diff_rot = Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)).transpose() * Util::eulerAngleToRotationMatrix(ref_ee_pose.segment(3, 3));
-	Eigen::Vector3d diff_angular_velocity = Util::rotationMatricesToAngularVelocity(Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)), diff_rot);
+	//Eigen::Vector3d diff_angular_velocity = Util::rotationMatricesToAngularVelocity(Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)), diff_rot);
+	Eigen::Vector3d diff_angular_velocity = Util::rotationMatricesToAngularVelocity(Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)), Util::eulerAngleToRotationMatrix(ref_ee_pose.segment(3, 3)));
 
 	// calcurate diff twist
 	Eigen::VectorXd diff_twist(6);
@@ -187,26 +188,37 @@ namespace Robotics
 	// set to QP
 	Eigen::MatrixXd P = basic_jacobian.transpose() * basic_jacobian;
 	Eigen::VectorXd q = (-diff_twist.transpose() * basic_jacobian).transpose();
-	Eigen::MatrixXd A(1, link_num_);
-	for (int i = 0; i < 1; i++) {
+	Eigen::MatrixXd A(link_num_, link_num_);
+	for (int i = 0; i < link_num_; i++) {
 	  for (int j = 0; j < link_num_; j++) {
-	    A(i, j) = 0;
+	    if (i == j) {
+	      A(i, j) = 1.;
+	    } else {
+	      A(i, j) = 0;	      
+	    }
 	  }
 	}
-	Eigen::VectorXd l(1);
-	for (int i = 0; i < l.size(); i++) { l[i] = -100.; }
-	Eigen::VectorXd u(1);
-	for (int i = 0; i < u.size(); i++) { u[i] = 100.; }
+	Eigen::VectorXd l(link_num_);
+	for (int i = 0; i < l.size(); i++) { l[i] = -1.; }
+	Eigen::VectorXd u(link_num_);
+	for (int i = 0; i < u.size(); i++) { u[i] = 1.; }
 
+	/*
 	std::cout << "convex" << std::endl;
 	Util::printMatrix(P);
 	Util::printMatrix(q);
+	*/
 
 	Eigen::VectorXd diff_theta = Util::qp(P, q, A, l, u);
-	//std::cout << diff_theta << std::endl;
+	/*
+	std::cout << "diff theta" << std::endl;
+	std::cout << diff_theta << std::endl;
+	*/
 	for (int link_idx = 0; link_idx < link_num_; link_idx++) {
 	  links_.at(link_idx).updateJointAngle(diff_theta.block(link_idx, 0, 1, 1)(0, 0));
 	}
+	std::cout << "ee pose" << std::endl;
+	std::cout << forwardKinematics() << std::endl;
       }
       
       // finish measuring time

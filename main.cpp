@@ -85,7 +85,7 @@ int main(int argc, char** argv)
   }();
 
   [&](){   // Inverse Kinematics
-    return;
+    //return;
     std::cout << "[Inverse Kinematics]" << std::endl;
     links.initPose();
 
@@ -96,7 +96,7 @@ int main(int argc, char** argv)
   }();
 
   [&](){   // Inverse Kinematics with SQP
-    //return;
+    return;
     std::cout << "[Inverse Kinematics with SQP]" << std::endl;
     links.initPose();
 
