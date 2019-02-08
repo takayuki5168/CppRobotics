@@ -125,7 +125,8 @@ namespace Robotics
 	if (diff_pose.norm() < epsilon) { break; }
 
 	Eigen::Matrix3d diff_rot = Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)).transpose() * Util::eulerAngleToRotationMatrix(ref_ee_pose.segment(3, 3));
-	Eigen::Vector3d diff_angular_velocity = Util::rotationMatricesToAngularVelocity(Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)), diff_rot);
+	Eigen::Vector3d diff_angular_velocity = Util::rotationMatricesToAngularVelocity(Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)),
+											Util::eulerAngleToRotationMatrix(ref_ee_pose.segment(3, 3)));
 
 	// calcurate diff twist
 	Eigen::VectorXd diff_twist(6);
@@ -186,7 +187,7 @@ namespace Robotics
 	Eigen::MatrixXd basic_jacobian = basicJacobian();
 
 	// set to QP
-	Eigen::MatrixXd H = basic_jacobian.transpose() * basic_jacobian;
+	Eigen::MatrixXd H = basic_jacobian.transpose() * basic_jacobian;// + Eigen::MatrixXd::Identity(link_num_, link_num_) * 0.001;
 	Eigen::VectorXd g = (-diff_twist.transpose() * basic_jacobian).transpose();
 
 	Eigen::VectorXd lb(link_num_);

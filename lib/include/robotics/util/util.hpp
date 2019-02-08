@@ -58,12 +58,13 @@ namespace Robotics
       return trans;
     }
 
-    Eigen::Vector3d rotationMatricesToAngularVelocity(Eigen::Matrix3d rot, Eigen::Matrix3d diff_rot)
+    Eigen::Vector3d rotationMatricesToAngularVelocity(Eigen::Matrix3d rot, Eigen::Matrix3d ref_rot)
     {
-      Eigen::Matrix3d mat = diff_rot * rot.transpose();
-      Eigen::Vector3d angular_velocity;
-      angular_velocity << -mat(1, 2), mat(0, 2), -mat(0, 1);
-      return angular_velocity;
+      Eigen::Matrix3d res_rot = ref_rot * rot.transpose();
+      Eigen::Vector3d l;
+      l << res_rot(2, 1) - res_rot(1, 2), res_rot(0, 2) - res_rot(2, 0), res_rot(1, 0) - res_rot(0, 1);
+      
+      return std::atan2(l.norm(), res_rot(0, 0) + res_rot(1, 1) + res_rot(2, 2) - 1) / l.norm() * l;
     }
   }   // namespace Util
 }   // namespace Robotics

@@ -64,7 +64,7 @@ int main(int argc, char** argv)
   }();
 
   [&](){   // Inverse Kinematics
-    return;
+    //return;
     std::cout << "[Inverse Kinematics]" << std::endl;
     links.initPose();
 
