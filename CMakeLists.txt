@@ -15,6 +15,13 @@ endif()
 set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/Eigen)
 include_directories(SYSTEM ${EIGEN_INCLUDE_DIR})
 
+# qpOASES
+set(QP_OASES_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/qpOASES/include)
+file(GLOB QP_OASES_SOURCE ${CMAKE_CURRENT_LIST_DIR}/external/qpOASES/src/*.cpp)
+add_library(QP_OASES STATIC ${QP_OASES_SOURCE})
+include_directories(SYSTEM ${QP_OASES_INCLUDE_DIR})
+add_definitions(-D__SUPPRESSANYOUTPUT__)   # not print information about optimization in qpOASES
+
 # OSQP
 set(IS_LINUX ON)
 set(CMAKE_C_STANDARD_LIBRARIES "${CMAKE_C_STANDARD_LIBRARIES} -lrt -ldl")
@@ -51,6 +58,7 @@ add_executable(main
   ${LIB_SOURCES})
 target_link_libraries(main
   ${OPENGL_LIBRARIES}
+  QP_OASES
   osqpstatic
   dl
   LINENOISE  

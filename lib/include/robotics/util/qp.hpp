@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <osqp.h>
+#include <qpOASES.hpp>
 #include "robotics/util/csc_matrix.hpp"
 #include "robotics/util/util.hpp"
 
@@ -10,7 +11,7 @@ namespace Robotics
 {
   namespace Util
   {
-    Eigen::VectorXd qp(Eigen::MatrixXd P_mat, Eigen::VectorXd q_vec,
+    Eigen::VectorXd qpWithOSQP(Eigen::MatrixXd P_mat, Eigen::VectorXd q_vec,
 		       Eigen::MatrixXd A_mat, Eigen::VectorXd l_vec, Eigen::VectorXd u_vec){
 
       // P
@@ -101,6 +102,41 @@ namespace Robotics
       c_free(data);
       c_free(settings);
 
+      return result;
+    }
+
+    USING_NAMESPACE_QPOASES
+    Eigen::VectorXd qpWithqpOASES(Eigen::MatrixXd H_mat, Eigen::VectorXd g_mat, Eigen::VectorXd lb_mat, Eigen::VectorXd ub_mat)
+    {
+      real_t H[H_mat.size()];
+      real_t g[g_mat.size()];
+      real_t lb[lb_mat.size()];
+      real_t ub[ub_mat.size()];
+      
+      for (int i = 0; i < H_mat.size(); i++) { H[i] = H_mat(i); }
+      for (int i = 0; i < g_mat.size(); i++) { g[i] = g_mat[i]; }
+      for (int i = 0; i < lb_mat.size(); i++) { lb[i] = lb_mat[i]; }
+      for (int i = 0; i < ub_mat.size(); i++) { ub[i] = ub_mat[i]; }
+
+      QProblemB example(g_mat.size());
+
+      real_t xOpt[g_mat.size()];
+
+      //int_t nWSR = 10;
+      //example.init(H, g, lb, ub, nWSR);
+
+      Options options;
+      options.printLevel = PL_NONE;
+      example.setOptions(options);
+      int_t nWSR = 10;
+      getSimpleStatus(example.init(H, g, lb, ub, nWSR), BT_FALSE);
+
+      example.getPrimalSolution(xOpt);
+
+      Eigen::VectorXd result(g_mat.size());
+      for (int i = 0; i < g_mat.size(); i++) {
+	result[i] = xOpt[i];
+      }
       return result;
     }
   }   // namespace Util

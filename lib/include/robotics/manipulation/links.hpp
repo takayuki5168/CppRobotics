@@ -163,7 +163,7 @@ namespace Robotics
       }
     }
 
-    void inverseKinematicsWithSQP(Eigen::VectorXd ref_ee_pose, bool print_info=false, double epsilon=0.001, int qp_lib=0)
+    void inverseKinematicsWithSQP(Eigen::VectorXd ref_ee_pose, bool print_info=false, double epsilon=0.001, int qp_lib=1)
     {
       // start measuring time
       std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
@@ -186,7 +186,7 @@ namespace Robotics
 
 	// set to QP
 	Eigen::VectorXd diff_theta;
-	if (qp_lib == 0) {
+	if (qp_lib == 0) {   // with OSQP
 	  Eigen::MatrixXd P = basic_jacobian.transpose() * basic_jacobian + Eigen::MatrixXd::Identity(link_num_, link_num_) * 0.00001;
 	  Eigen::VectorXd q = (-diff_twist.transpose() * basic_jacobian).transpose();
 	  Eigen::MatrixXd A(link_num_, link_num_);
@@ -204,9 +204,17 @@ namespace Robotics
 	  Eigen::VectorXd u(link_num_);
 	  for (int i = 0; i < u.size(); i++) { u[i] = 10.; }
 
-	  diff_theta = Util::qp(P, q, A, l, u);
-	} else if (qp_lib == 1) {
-	  //diff_theta = Util::qp(P, q, A, l, u);
+	  diff_theta = Util::qpWithOSQP(P, q, A, l, u);
+	} else if (qp_lib == 1) {   // with qpOASES
+	  Eigen::MatrixXd H = basic_jacobian.transpose() * basic_jacobian + Eigen::MatrixXd::Identity(link_num_, link_num_) * 0.001;
+	  Eigen::VectorXd g = (-diff_twist.transpose() * basic_jacobian).transpose();
+	  
+	  Eigen::VectorXd lb(link_num_);
+	  for (int i = 0; i < lb.size(); i++) { lb[i] = -1000; }
+	  Eigen::VectorXd ub(link_num_);
+	  for (int i = 0; i < ub.size(); i++) { ub[i] = 1000; }
+	  
+	  diff_theta = Util::qpWithqpOASES(H, g, lb, ub);
 	}
 	/*
 	std::cout << "diff theta" << std::endl;
