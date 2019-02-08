@@ -85,27 +85,38 @@ int main(int argc, char** argv)
   }();
 
   [&](){   // Inverse Kinematics
-    return;
+    //return;
     std::cout << "[Inverse Kinematics]" << std::endl;
     links.initPose();
 
     Eigen::VectorXd ref_pose(6);
     ref_pose << 0.4, 0, 0, 0, 1.57, 0;
 
-    links.inverseKinematics(ref_pose, true);
+    links.inverseKinematics(ref_pose, true, 0.001);
   }();
 
-  [&](){   // Inverse Kinematics with SQP
-    //return;
-    std::cout << "[Inverse Kinematics with SQP]" << std::endl;
+  [&](){   // Inverse Kinematics with SQP, using OSQP
+    return;
+    std::cout << "[Inverse Kinematics with SQP, using OSQP]" << std::endl;
     links.initPose();
 
     Eigen::VectorXd ref_pose(6);
     ref_pose << 0.4, 0, 0, 0, 1.57, 0;
 
-    links.inverseKinematicsWithSQP(ref_pose, true);
+    links.inverseKinematicsWithSQP(ref_pose, true, 0.001, 0);
   }();
 
+  [&](){   // Inverse Kinematics with SQP, using qpOASES
+    //return;
+    std::cout << "[Inverse Kinematics with SQP, using qpOASES]" << std::endl;
+    links.initPose();
+
+    Eigen::VectorXd ref_pose(6);
+    ref_pose << 0.4, 0, 0, 0, 1.57, 0;
+
+    links.inverseKinematicsWithSQP(ref_pose, true, 0.001, 1);
+  }();
+  
 
   //while (true) {}
   

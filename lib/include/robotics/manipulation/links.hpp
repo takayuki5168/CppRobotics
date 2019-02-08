@@ -119,7 +119,7 @@ namespace Robotics
       std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
       // starr caluclation
-      for (int cnt = 0; cnt < 100; cnt++) {  // TODO
+      for (int cnt = 0; cnt < 500; cnt++) {  // TODO
 	Eigen::VectorXd ee_pose = forwardKinematics();
 	Eigen::VectorXd diff_pose = ref_ee_pose - ee_pose;
 	if (diff_pose.norm() < epsilon) { break; }
@@ -168,10 +168,10 @@ namespace Robotics
       // start measuring time
       std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
       
-      for (int cnt = 0; cnt < 100; cnt++) {
+      for (int cnt = 0; cnt < 500; cnt++) {
 	Eigen::VectorXd ee_pose = forwardKinematics();
 	Eigen::VectorXd diff_pose = ref_ee_pose - ee_pose;
-	//if (diff_pose.norm() < epsilon) { break; }
+	if (diff_pose.norm() < epsilon) { break; }
 	
 	//Eigen::Matrix3d diff_rot = Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)).transpose() * Util::eulerAngleToRotationMatrix(ref_ee_pose.segment(3, 3));
 	Eigen::Vector3d diff_angular_velocity = Util::rotationMatricesToAngularVelocity(Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)),
