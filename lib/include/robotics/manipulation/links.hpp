@@ -124,7 +124,7 @@ namespace Robotics
 	Eigen::VectorXd diff_pose = ref_ee_pose - ee_pose;
 	if (diff_pose.norm() < epsilon) { break; }
 
-	Eigen::Matrix3d diff_rot = Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)).transpose() * Util::eulerAngleToRotationMatrix(ref_ee_pose.segment(3, 3));
+	//Eigen::Matrix3d diff_rot = Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)).transpose() * Util::eulerAngleToRotationMatrix(ref_ee_pose.segment(3, 3));
 	Eigen::Vector3d diff_angular_velocity = Util::rotationMatricesToAngularVelocity(Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)),
 											Util::eulerAngleToRotationMatrix(ref_ee_pose.segment(3, 3)));
 
@@ -176,8 +176,8 @@ namespace Robotics
 	//if (diff_pose.norm() < epsilon) { break; }
 	
 	Eigen::Matrix3d diff_rot = Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)).transpose() * Util::eulerAngleToRotationMatrix(ref_ee_pose.segment(3, 3));
-	Eigen::Vector3d diff_angular_velocity = Util::rotationMatricesToAngularVelocity(Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)), diff_rot);
-
+	Eigen::Vector3d diff_angular_velocity = Util::rotationMatricesToAngularVelocity(Util::eulerAngleToRotationMatrix(ee_pose.segment(3, 3)),
+											Util::eulerAngleToRotationMatrix(ref_ee_pose.segment(3, 3)));
 	// calcurate diff twist
 	Eigen::VectorXd diff_twist(6);
 	diff_twist.segment(0, 3) = diff_pose.segment(0, 3);
@@ -187,7 +187,7 @@ namespace Robotics
 	Eigen::MatrixXd basic_jacobian = basicJacobian();
 
 	// set to QP
-	Eigen::MatrixXd H = basic_jacobian.transpose() * basic_jacobian;// + Eigen::MatrixXd::Identity(link_num_, link_num_) * 0.001;
+	Eigen::MatrixXd H = basic_jacobian.transpose() * basic_jacobian + Eigen::MatrixXd::Identity(link_num_, link_num_) * 0.001;
 	Eigen::VectorXd g = (-diff_twist.transpose() * basic_jacobian).transpose();
 
 	Eigen::VectorXd lb(link_num_);
@@ -195,22 +195,10 @@ namespace Robotics
 	Eigen::VectorXd ub(link_num_);
 	for (int i = 0; i < ub.size(); i++) { ub[i] = 1000; }
 
-	/*
-	std::cout << std::endl;
-	ee_pose = forwardKinematics();
-	diff_pose = ref_ee_pose - ee_pose;
-	std::cout << diff_pose.norm() << std::endl;
-	*/
-	
 	Eigen::VectorXd diff_theta = Util::qp(H, g, lb, ub);
 	for (int link_idx = 0; link_idx < link_num_; link_idx++) {
 	  links_.at(link_idx).updateJointAngle(diff_theta.block(link_idx, 0, 1, 1)(0, 0));
 	}
-	/*
-	ee_pose = forwardKinematics();
-	diff_pose = ref_ee_pose - ee_pose;
-	std::cout << diff_pose.norm() << std::endl;
-	*/
       }
       
       // finish measuring time
